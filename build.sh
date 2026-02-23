@@ -10,3 +10,43 @@ if [[ "$ARCH" != x86* ]]; then
 fi
 
 echo "current arch: $ARCH"
+
+if [ "build" == $1 ]; then
+	echo "build android from source......"
+	mkdir _android_kernel
+	cd _android_kernel
+	repo init -u https://android.googlesource.com/kernel/manifest -b common-android15-6.6
+	repo sync
+
+	echo "sync done, add patch"
+	cp ../15-6.6/BUILD.bazel common/
+	cp ../15-6.6/baize.fragment common/arch/arm64/configs/
+
+	echo "start build android kernel"
+	tools/bazel build //common:kernel_aarch64_dist
+	tools/bazel run //common:kernel_aarch64_dist
+
+	echo "build ramdisk"
+	cd ..
+	mkdir _ramdisk_cpio
+	cd _ramdisk_cpio
+	cpio -idv < ../../rootfs-hub/android/vendor_boot/vendor_ramdisk.cpio
+	rm -rf lib/modules/*
+	cp ../_android_kernel/out/kernel_aarch64/dist/*.ko lib/modules/
+	cp ../_android_kernel/out/kernel_aarch64/dist/system_dlkm.modules.load lib/modules/modules.load
+	pushd .
+	cd ../_android_kernel/out/kernel_aarch64/dist/
+	KVER=$(strings Image | grep -E "^6\.6\.[0-9]+" | head -n 1 | cut -d' ' -f1)
+	mkdir -p lib/modules/$KVER
+	cp *.ko lib/modules/$KVER/
+	depmod -b $(pwd) -F $(pwd)/System.map $(strings Image | grep -E "^6\.6\.[0-9]+" | head -n 1 | cut -d' ' -f1)
+	cp lib/modules/$KVER/modules.dep ../../../../_ramdisk_cpio/lib/modules/
+	popd
+	find . -mindepth 1 | cpio -o -H newc > ../ramdisk-v2.cpio
+	cd ..
+	mv ramdisk-v2.cpio ../rootfs-hub/android/
+	echo "ramdisk built"
+else
+	echo "use android from hub......"
+fi
+

@@ -161,6 +161,7 @@ define_common_kernels(target_configs = {
             "drivers/xen/xen-gntalloc.ko",
             "drivers/xen/xen-pciback/xen-pciback.ko",
             "drivers/xen/xen-gntdev.ko",
+            "drivers/gpu/drm/vgem/vgem.ko",
         ],
 	"make_goals": _GKI_AARCH64_MAKE_GOALS,
         "ddk_headers_archive": ":kernel_aarch64_ddk_headers_archive",
