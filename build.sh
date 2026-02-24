@@ -2,6 +2,11 @@
 
 set -e
 
+echo "check gsi......"
+if [ ! -f ../rootfs-hub/android/gsi/system.img ]; then
+        unzip ../rootfs-hub/android/gsi/*.zip -d ../rootfs-hub/android/gsi/
+fi
+
 ARCH=$(uname -m)
 
 if [[ "$ARCH" != x86* ]]; then
@@ -47,6 +52,6 @@ if [ "build" == $1 ]; then
 	mv ramdisk-v2.cpio ../rootfs-hub/android/
 	echo "ramdisk built"
 else
-	echo "use android from hub......"
+	echo "use ramdisk from hub......"
 fi
 
