@@ -26,6 +26,9 @@ if [ "build" == $1 ]; then
 	echo "sync done, add patch"
 	cp ../15-6.6/BUILD.bazel common/
 	cp ../15-6.6/baize.fragment common/arch/arm64/configs/
+	cd common/
+	git am ../../15-6.6/0001-fix-android-ubsan-error-when-mount-virtio-blk-device.patch
+	cd ..
 
 	echo "start build android kernel"
 	tools/bazel build //common:kernel_aarch64_dist
