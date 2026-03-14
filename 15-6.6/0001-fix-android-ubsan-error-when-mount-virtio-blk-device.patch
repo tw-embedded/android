@@ -1,0 +1,26 @@
+From f684dec060d4b37547a7aabc87b758e22dca9a52 Mon Sep 17 00:00:00 2001
+From: alix <alix.gao@qq.com>
+Date: Sat, 14 Mar 2026 05:42:57 +0000
+Subject: [PATCH] fix: android ubsan error when mount virtio blk device
+
+Signed-off-by: alix <alix.gao@qq.com>
+---
+ include/xen/interface/io/ring.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/xen/interface/io/ring.h b/include/xen/interface/io/ring.h
+index ba4c4274b..f3cbd1ab2 100644
+--- a/include/xen/interface/io/ring.h
++++ b/include/xen/interface/io/ring.h
+@@ -95,7 +95,7 @@ struct __name##_sring {                                                 \
+     RING_IDX req_prod, req_event;                                       \
+     RING_IDX rsp_prod, rsp_event;                                       \
+     uint8_t __pad[48];                                                  \
+-    union __name##_sring_entry ring[1]; /* variable-length */           \
++    union __name##_sring_entry ring[]; /* variable-length */           \
+ };                                                                      \
+                                                                         \
+ /* "Front" end's private variables */                                   \
+-- 
+2.43.0
+
