@@ -51,6 +51,7 @@ if [ "build" == $1 ]; then
 	cp lib/modules/$KVER/modules.dep ../../../../_ramdisk_cpio/lib/modules/
 	popd
 	find . -mindepth 1 | cpio -o -H newc > ../ramdisk-v2.cpio
+	sudo sh -c "find . -mindepth 1 | cpio -o -H newc" > ../ramdisk-v3.cpio
 	cd ..
 	mv ramdisk-v2.cpio ../rootfs-hub/android/
 	echo "ramdisk built"
