@@ -59,3 +59,10 @@ else
 	echo "use ramdisk from hub......"
 fi
 
+function transfer_vendor() {
+	dd if=/dev/zero of=vendor.img bs=1M count=1536
+	mkfs.ext4 -L vendor vendor.img
+	sudo mount -t ext4 -o rw vendor.img mp
+	sudo rsync -aXA ./vv/ ./mp/
+}
+
