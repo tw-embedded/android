@@ -3,8 +3,8 @@
 set -e
 
 echo "check gsi......"
-if [ ! -f ../rootfs-hub/android/gsi/system.img ]; then
-        unzip ../rootfs-hub/android/gsi/*.zip -d ../rootfs-hub/android/gsi/
+if [ ! -f ../rootfs-hub/android/google/gsi/system.img ]; then
+        unzip ../rootfs-hub/android/google/gsi/*.zip -d ../rootfs-hub/android/google/gsi/
 fi
 
 ARCH=$(uname -m)
