@@ -2,11 +2,6 @@
 
 set -e
 
-echo "check gsi......"
-if [ ! -f ../rootfs-hub/android/google/gsi/system.img ]; then
-        unzip ../rootfs-hub/android/google/gsi/*.zip -d ../rootfs-hub/android/google/gsi/
-fi
-
 ARCH=$(uname -m)
 
 if [[ "$ARCH" != x86* ]]; then
@@ -60,9 +55,28 @@ else
 fi
 
 function transfer_vendor() {
-	dd if=/dev/zero of=vendor.img bs=1M count=1536
+	dd if=/dev/zero of=vendor.img bs=1M count=512
 	mkfs.ext4 -L vendor vendor.img
 	sudo mount -t ext4 -o rw vendor.img mp
-	sudo rsync -aXA ./vv/ ./mp/
+	#sudo mount -t erofs -o ro cf-vendor.img ori
+	sudo rsync -aXA ./ori/ ./mp/
+}
+
+function patch_aosp() {
+	pushd .
+	cd ./external/minigbm
+	git apply 0001-fix-mesa-build.patch
+	cd ./device/google/cuttlefish
+	git apply 0001-feat-build-for-mesa-ext4.patch
+	popd
+}
+
+function build_aosp() {
+	repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r1
+	repo sync -c -j4
+	source build/envsetup.sh
+	lunch aosp_cf_arm64_phone-trunk_staging-userdebug
+	patch_aosp
+	make -j13
 }
 

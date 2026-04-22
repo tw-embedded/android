@@ -1,0 +1,134 @@
+From fde6942edd5640ae89d3e9ad438a1e0b301b4a91 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 19 Apr 2026 05:58:46 +0800
+Subject: [PATCH] feat: build for mesa & ext4
+
+Change-Id: Ic71fdf26dfe419c86b5931196fbf8153db28053c
+Signed-off-by: Your Name <you@example.com>
+---
+ shared/BoardConfig.mk            |  8 ++++--
+ shared/device.mk                 |  8 +++---
+ shared/graphics/device_vendor.mk | 46 ++++++++++++++++++++++++++++++--
+ 3 files changed, 54 insertions(+), 8 deletions(-)
+
+diff --git a/shared/BoardConfig.mk b/shared/BoardConfig.mk
+index 3dadfbca4..0ec2ed3c9 100644
+--- a/shared/BoardConfig.mk
++++ b/shared/BoardConfig.mk
+@@ -253,8 +253,12 @@ endif
+ # Enable goldfish's encoder.
+ # TODO(b/113617962) Remove this if we decide to use
+ # device/generic/opengl-transport to generate the encoder
+-BUILD_EMULATOR_OPENGL_DRIVER := true
+-BUILD_EMULATOR_OPENGL := true
++BUILD_EMULATOR_OPENGL_DRIVER := false
++BUILD_EMULATOR_OPENGL := false
++BOARD_MESA3D_USES_MESON_BUILD := true
++BOARD_MESA3D_GALLIUM_DRIVERS := virgl
++BOARD_MESA3D_VULKAN_DRIVERS := virtio
++BOARD_GPU_DRIVER := virgl
+ 
+ # Minimum size of the final bootable disk image: 10G
+ # GCE will pad disk images out to 10G. Our disk images should be at least as
+diff --git a/shared/device.mk b/shared/device.mk
+index 2bb4c08f2..0b294e927 100644
+--- a/shared/device.mk
++++ b/shared/device.mk
+@@ -48,8 +48,8 @@ endif
+ PRODUCT_SET_DEBUGFS_RESTRICTIONS := true
+ 
+ PRODUCT_FS_COMPRESSION := 1
+-TARGET_RO_FILE_SYSTEM_TYPE ?= erofs
+-TARGET_USERDATAIMAGE_FILE_SYSTEM_TYPE ?= f2fs
++TARGET_RO_FILE_SYSTEM_TYPE ?= ext4
++TARGET_USERDATAIMAGE_FILE_SYSTEM_TYPE ?= ext4
+ TARGET_USERDATAIMAGE_PARTITION_SIZE ?= 8589934592
+ 
+ TARGET_VULKAN_SUPPORT ?= true
+@@ -128,13 +128,13 @@ PRODUCT_VENDOR_PROPERTIES += ro.cp_system_other_odex=1
+ AB_OTA_POSTINSTALL_CONFIG += \
+     RUN_POSTINSTALL_system=true \
+     POSTINSTALL_PATH_system=system/bin/otapreopt_script \
+-    FILESYSTEM_TYPE_system=erofs \
++    FILESYSTEM_TYPE_system=ext4 \
+     POSTINSTALL_OPTIONAL_system=true
+ 
+ AB_OTA_POSTINSTALL_CONFIG += \
+     RUN_POSTINSTALL_vendor=true \
+     POSTINSTALL_PATH_vendor=bin/checkpoint_gc \
+-    FILESYSTEM_TYPE_vendor=erofs \
++    FILESYSTEM_TYPE_vendor=ext4 \
+     POSTINSTALL_OPTIONAL_vendor=true
+ 
+ # Userdata Checkpointing OTA GC
+diff --git a/shared/graphics/device_vendor.mk b/shared/graphics/device_vendor.mk
+index d13904d93..3159d3005 100644
+--- a/shared/graphics/device_vendor.mk
++++ b/shared/graphics/device_vendor.mk
+@@ -22,7 +22,7 @@ PRODUCT_COPY_FILES += \
+ 
+ # Gfxstream common libraries:
+ PRODUCT_SOONG_NAMESPACES += device/generic/goldfish-opengl
+-PRODUCT_PACKAGES += \
++#PRODUCT_PACKAGES += \
+     libandroidemu \
+     libOpenglCodecCommon \
+     libOpenglSystemCommon \
+@@ -35,7 +35,7 @@ PRODUCT_PACKAGES += \
+     libGoldfishProfiler \
+ 
+ # Gfxstream OpenGL implementation (OpenGL streamed to the host).
+-PRODUCT_PACKAGES += \
++#PRODUCT_PACKAGES += \
+     libEGL_emulation \
+     libGLESv1_CM_emulation \
+     libGLESv1_enc \
+@@ -63,3 +63,45 @@ PRODUCT_PACKAGES += com.google.cf.gralloc
+ PRODUCT_PACKAGES += \
+     android.hardware.graphics.allocator-service.minigbm \
+     mapper.minigbm
++
++###############################################################
++# added by jack
++###############################################################
++
++# GLES
++PRODUCT_PACKAGES := \
++    libGLES_mesa \
++    libEGL_mesa \
++    libGLESv1_CM_mesa \
++    libGLESv2_mesa \
++    libgallium_dri \
++    libglapi
++
++PRODUCT_SOONG_NAMESPACES += \
++       external/mesa3d
++
++PRODUCT_PROPERTY_OVERRIDES := \
++    ro.sf.lcd_density=160 \
++    ro.hardware.egl=mesa \
++    ro.opengles.version=196608 \
++    persist.demo.rotationlock=1
++
++PRODUCT_COPY_FILES += \
++    frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml \
++    frameworks/native/data/etc/android.software.opengles.deqp.level-2022-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.opengles.deqp.level.xml
++
++# Vulkan
++PRODUCT_PACKAGES += \
++    vulkan.freedreno
++
++PRODUCT_COPY_FILES += \
++    frameworks/native/data/etc/android.hardware.vulkan.compute-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.compute.xml \
++    frameworks/native/data/etc/android.hardware.vulkan.level-1.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.level.xml \
++    frameworks/native/data/etc/android.hardware.vulkan.version-1_1.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.version.xml \
++    frameworks/native/data/etc/android.software.vulkan.deqp.level-2021-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.vulkan.deqp.level.xml
++
++PRODUCT_VENDOR_PROPERTIES += \
++    ro.hardware.vulkan=freedreno
++
++# Will need to enable this after ANDROID_external_memory_android_hardware_buffer lands in Freedreno
++#TARGET_USES_VULKAN = true
+-- 
+2.34.1
+
