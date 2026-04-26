@@ -1,0 +1,168 @@
+From e0d54baef56a73e279425351a8ddda54aa6cf65c Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 26 Apr 2026 02:06:16 +0000
+Subject: [PATCH] feat: baize
+
+Change-Id: I2bc370d895cb8d86e784189f0569abf7584cb3b9
+Signed-off-by: Your Name <you@example.com>
+---
+ BoardConfigCommon.mk                | 12 ++++++------
+ db845c.mk                           |  4 ++--
+ db845c/BoardConfig.mk               |  8 ++++----
+ shared/graphics/mesa/BoardConfig.mk |  4 ++--
+ shared/graphics/mesa/device.mk      | 21 +++++++++++++++------
+ 5 files changed, 29 insertions(+), 20 deletions(-)
+
+diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
+index 2683711..8afbc76 100644
+--- a/BoardConfigCommon.mk
++++ b/BoardConfigCommon.mk
+@@ -18,17 +18,17 @@ TARGET_NO_BOOTLOADER := true
+ TARGET_NO_KERNEL := true
+ TARGET_NO_RECOVERY := true
+ 
+-BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := erofs
++BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
+ TARGET_USERIMAGES_USE_F2FS := true
+ BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
+ # Currently, f2fs block size must be equal to page size
+ BOARD_F2FS_BLOCKSIZE := 4096
+ TARGET_COPY_OUT_VENDOR := vendor
+-BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := erofs
++BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+ TARGET_COPY_OUT_SYSTEM_EXT := system_ext
+-BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := erofs
++BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := ext4
+ TARGET_COPY_OUT_PRODUCT := product
+-BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := erofs
++BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
+ BOARD_USES_METADATA_PARTITION := true
+ # Super partition
+ TARGET_USE_DYNAMIC_PARTITIONS := true
+@@ -44,8 +44,8 @@ BOARD_VNDK_VERSION := current
+ WPA_SUPPLICANT_VERSION := VER_0_8_X
+ BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+ BOARD_HOSTAPD_DRIVER := NL80211
+-BOARD_WLAN_DEVICE := qcwcn
+-BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
++#BOARD_WLAN_DEVICE := qcwcn
++#BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+ 
+ # BT
+ BOARD_HAVE_BLUETOOTH := true
+diff --git a/db845c.mk b/db845c.mk
+index 6a82598..20aeb6b 100644
+--- a/db845c.mk
++++ b/db845c.mk
+@@ -1,5 +1,5 @@
+ # Target defaults to 64- and 32-bit
+-TARGET_64BIT_ONLY ?= false
++TARGET_64BIT_ONLY ?= true
+ 
+ # Target can boot 16K kernels - defaults to false
+ # If BOOTS_16K is set, enable 64BIT_ONLY as well
+@@ -18,7 +18,7 @@ endif
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
+ $(call inherit-product, device/linaro/dragonboard/shared/graphics/drm_hwcomposer/device.mk)
+ $(call inherit-product, device/linaro/dragonboard/shared/graphics/mesa/device.mk)
+-$(call inherit-product, device/linaro/dragonboard/shared/graphics/minigbm_msm/device.mk)
++#$(call inherit-product, device/linaro/dragonboard/shared/graphics/minigbm_msm/device.mk)
+ $(call inherit-product, device/linaro/dragonboard/db845c/device.mk)
+ 
+ #Boot with Android boot image header v3
+diff --git a/db845c/BoardConfig.mk b/db845c/BoardConfig.mk
+index b1517c1..f7d2af1 100644
+--- a/db845c/BoardConfig.mk
++++ b/db845c/BoardConfig.mk
+@@ -2,15 +2,15 @@ include device/linaro/dragonboard/BoardConfigCommon.mk
+ 
+ # Primary Arch
+ TARGET_ARCH := arm64
+-TARGET_ARCH_VARIANT := armv8-2a
+-TARGET_CPU_VARIANT := kryo385
++TARGET_ARCH_VARIANT := armv8-a
++TARGET_CPU_VARIANT := generic
+ TARGET_CPU_ABI := arm64-v8a
+ 
+ ifeq ($(TARGET_64BIT_ONLY), false)
+   # Secondary Arch
+   TARGET_2ND_ARCH := arm
+-  TARGET_2ND_ARCH_VARIANT := armv8-2a
+-  TARGET_2ND_CPU_VARIANT := kryo385
++  TARGET_2ND_ARCH_VARIANT := armv8-a
++  TARGET_2ND_CPU_VARIANT := generic
+   TARGET_2ND_CPU_ABI := armeabi-v7a
+   TARGET_2ND_CPU_ABI2 := armeabi
+ endif
+diff --git a/shared/graphics/mesa/BoardConfig.mk b/shared/graphics/mesa/BoardConfig.mk
+index c6e156d..ca05d51 100644
+--- a/shared/graphics/mesa/BoardConfig.mk
++++ b/shared/graphics/mesa/BoardConfig.mk
+@@ -16,8 +16,8 @@
+ 
+ ifeq ($(TARGET_BUILD_MESA),true)
+ BOARD_MESA3D_USES_MESON_BUILD := true
+-BOARD_MESA3D_GALLIUM_DRIVERS := freedreno
+-BOARD_MESA3D_VULKAN_DRIVERS := freedreno
++BOARD_MESA3D_GALLIUM_DRIVERS := virgl
++BOARD_MESA3D_VULKAN_DRIVERS := virgl
+ else
+ BOARD_USE_CUSTOMIZED_MESA := true
+ endif
+diff --git a/shared/graphics/mesa/device.mk b/shared/graphics/mesa/device.mk
+index a083424..464dfa2 100644
+--- a/shared/graphics/mesa/device.mk
++++ b/shared/graphics/mesa/device.mk
+@@ -21,9 +21,11 @@ PRODUCT_PACKAGES := \
+     libGLESv1_CM_mesa \
+     libGLESv2_mesa \
+     libgallium_dri \
+-    libglapi
++    libglapi \
++    virtio_gpu.default \
++    gralloc.minigbm
+ 
+-TARGET_BUILD_MESA ?= false
++TARGET_BUILD_MESA ?= true
+ ifeq ($(TARGET_BUILD_MESA), true)
+    PRODUCT_SOONG_NAMESPACES += \
+        external/mesa3d
+@@ -33,7 +35,8 @@ PRODUCT_PROPERTY_OVERRIDES := \
+     ro.sf.lcd_density=160 \
+     ro.hardware.egl=mesa \
+     ro.opengles.version=196608 \
+-    persist.demo.rotationlock=1
++    persist.demo.rotationlock=1 \
++    ro.hardware.gralloc=minigbm
+ 
+ PRODUCT_COPY_FILES += \
+     frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml \
+@@ -41,7 +44,7 @@ PRODUCT_COPY_FILES += \
+ 
+ # Vulkan
+ PRODUCT_PACKAGES += \
+-    vulkan.freedreno
++    vulkan.virtio
+ 
+ PRODUCT_COPY_FILES += \
+     frameworks/native/data/etc/android.hardware.vulkan.compute-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.compute.xml \
+@@ -50,8 +53,14 @@ PRODUCT_COPY_FILES += \
+     frameworks/native/data/etc/android.software.vulkan.deqp.level-2021-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.vulkan.deqp.level.xml
+ 
+ PRODUCT_VENDOR_PROPERTIES += \
+-    ro.hardware.vulkan=freedreno
++    ro.hardware.vulkan=virtio
+ 
+ # Will need to enable this after ANDROID_external_memory_android_hardware_buffer lands in Freedreno
+-PRODUCT_VENDOR_PROPERTIES += debug.hwui.renderer=skiagl
++PRODUCT_VENDOR_PROPERTIES += debug.hwui.renderer=skiagl \
++			     debug.renderengine.backend=vulkan \
++			     ro.vulkan.apex=com.android.virt \
++			     hwaccel.autodetect=true \
++			     ro.kernel.qemu=1 \
++			     ro.boot.qemu=1
++
+ TARGET_USES_VULKAN := true
+-- 
+2.34.1
+
