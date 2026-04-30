@@ -1,0 +1,12 @@
+# android fstab for xen pvh gsi
+# <src>                  <mnt_point>  <type> <mnt_flags>                <fsmgr_flags>
+/dev/block/xvda          /system      ext4   noatime,ro,errors=panic    wait,first_stage_mount
+/dev/block/xvdb          /vbmeta      emmc   defaults                   wait,first_stage_mount #avb
+/dev/block/xvdc          /vendor      ext4   noatime,ro,errors=panic    wait,first_stage_mount
+
+/dev/block/xvdd          /data        ext4   rw,nodev,noatime,nosuid,errors=panic       wait,check,formattable
+#/dev/block/xvde          /metadata    ext4   rw,nodev,noatime,nosuid,errors=panic       wait,formattable
+
+/dev/block/xvdf          /system_ext  ext4   noatime,ro,errors=panic    wait,first_stage_mount
+/dev/block/xvdg          /product     ext4   noatime,ro,errors=panic    wait,first_stage_mount
+
