@@ -60,6 +60,8 @@ function transfer_vendor() {
 	sudo mount -t ext4 -o rw vendor.img mp
 	#sudo mount -t erofs -o ro cf-vendor.img ori
 	sudo rsync -aXA ./ori/ ./mp/
+
+	e2fsck -f vendor.img
 }
 
 function patch_aosp() {
