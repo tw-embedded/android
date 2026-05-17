@@ -57,7 +57,7 @@ fi
 function transfer_vendor() {
 	dd if=/dev/zero of=vendor.img bs=1M count=512
 	mkfs.ext4 -L vendor vendor.img
-	sudo mount -t ext4 -o rw vendor.img mp
+	sudo mount -t ext4 -o rw,user_xattr vendor.img mp
 	#sudo mount -t erofs -o ro cf-vendor.img ori
 	sudo rsync -aXA ./ori/ ./mp/
 
@@ -73,12 +73,31 @@ function patch_aosp() {
 	popd
 }
 
+function swapfile() {
+	# enable
+	sudo dd if=/dev/zero of=./swapfile bs=1M count=32768
+	sudo chmod 600 ./swapfile
+	sudo mkswap ./swapfile
+	sudo swapon ./swapfile
+
+	# check
+	free -h
+
+	# disable
+	sudo swapoff ./swapfile
+}
+
 function build_aosp() {
 	repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r1
 	repo sync -c -j4
 	source build/envsetup.sh
 	lunch aosp_cf_arm64_phone-trunk_staging-userdebug
 	patch_aosp
+	# build android in background
+	sudo apt-get install screen
+	screen -S aosp
 	make -j13
+	# reconnect screen
+	screen -r aosp
 }
 

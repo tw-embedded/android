@@ -1,4 +1,4 @@
-From e0d54baef56a73e279425351a8ddda54aa6cf65c Mon Sep 17 00:00:00 2001
+From fbff94d74a5444137ae02c1c4d17f5dc8f86a6a9 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Sun, 26 Apr 2026 02:06:16 +0000
 Subject: [PATCH] feat: baize
@@ -10,8 +10,8 @@ Signed-off-by: Your Name <you@example.com>
  db845c.mk                           |  4 ++--
  db845c/BoardConfig.mk               |  8 ++++----
  shared/graphics/mesa/BoardConfig.mk |  4 ++--
- shared/graphics/mesa/device.mk      | 21 +++++++++++++++------
- 5 files changed, 29 insertions(+), 20 deletions(-)
+ shared/graphics/mesa/device.mk      | 23 ++++++++++++++++-------
+ 5 files changed, 30 insertions(+), 21 deletions(-)
 
 diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
 index 2683711..8afbc76 100644
@@ -110,7 +110,7 @@ index c6e156d..ca05d51 100644
  BOARD_USE_CUSTOMIZED_MESA := true
  endif
 diff --git a/shared/graphics/mesa/device.mk b/shared/graphics/mesa/device.mk
-index a083424..464dfa2 100644
+index a083424..0cfbd97 100644
 --- a/shared/graphics/mesa/device.mk
 +++ b/shared/graphics/mesa/device.mk
 @@ -21,9 +21,11 @@ PRODUCT_PACKAGES := \
@@ -155,14 +155,15 @@ index a083424..464dfa2 100644
  
  # Will need to enable this after ANDROID_external_memory_android_hardware_buffer lands in Freedreno
 -PRODUCT_VENDOR_PROPERTIES += debug.hwui.renderer=skiagl
+-TARGET_USES_VULKAN := true
 +PRODUCT_VENDOR_PROPERTIES += debug.hwui.renderer=skiagl \
-+			     debug.renderengine.backend=vulkan \
++			     debug.renderengine.backend=gles \
 +			     ro.vulkan.apex=com.android.virt \
 +			     hwaccel.autodetect=true \
 +			     ro.kernel.qemu=1 \
 +			     ro.boot.qemu=1
 +
- TARGET_USES_VULKAN := true
++TARGET_USES_VULKAN := false
 -- 
 2.34.1
 
