@@ -55,6 +55,7 @@ else
 fi
 
 function transfer_vendor() {
+	git lfs pull
 	dd if=/dev/zero of=vendor.img bs=1M count=512
 	mkfs.ext4 -L vendor vendor.img
 	sudo mount -t ext4 -o rw,user_xattr vendor.img mp
@@ -91,7 +92,8 @@ function build_aosp() {
 	repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r1
 	repo sync -c -j4
 	source build/envsetup.sh
-	lunch aosp_cf_arm64_phone-trunk_staging-userdebug
+	#lunch aosp_cf_arm64_phone-trunk_staging-userdebug
+	lunch db845c-trunk_staging-userdebug
 	patch_aosp
 	# build android in background
 	sudo apt-get install screen
