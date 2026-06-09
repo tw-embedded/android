@@ -1,4 +1,4 @@
-From fbff94d74a5444137ae02c1c4d17f5dc8f86a6a9 Mon Sep 17 00:00:00 2001
+From d6a88e33df641edc1c92a49ce3499c052cb23b1f Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Sun, 26 Apr 2026 02:06:16 +0000
 Subject: [PATCH] feat: baize
@@ -7,11 +7,14 @@ Change-Id: I2bc370d895cb8d86e784189f0569abf7584cb3b9
 Signed-off-by: Your Name <you@example.com>
 ---
  BoardConfigCommon.mk                | 12 ++++++------
- db845c.mk                           |  4 ++--
+ db845c.mk                           |  7 ++++---
  db845c/BoardConfig.mk               |  8 ++++----
+ sepolicy/file_contexts              |  9 ++++++++-
+ sepolicy/surfaceflinger.te          |  6 ++++++
  shared/graphics/mesa/BoardConfig.mk |  4 ++--
- shared/graphics/mesa/device.mk      | 23 ++++++++++++++++-------
- 5 files changed, 30 insertions(+), 21 deletions(-)
+ shared/graphics/mesa/device.mk      | 25 ++++++++++++++++++-------
+ shared/graphics/swangle/device.mk   |  5 ++++-
+ 8 files changed, 52 insertions(+), 24 deletions(-)
 
 diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
 index 2683711..8afbc76 100644
@@ -51,7 +54,7 @@ index 2683711..8afbc76 100644
  # BT
  BOARD_HAVE_BLUETOOTH := true
 diff --git a/db845c.mk b/db845c.mk
-index 6a82598..20aeb6b 100644
+index 6a82598..8573ac0 100644
 --- a/db845c.mk
 +++ b/db845c.mk
 @@ -1,5 +1,5 @@
@@ -61,11 +64,14 @@ index 6a82598..20aeb6b 100644
  
  # Target can boot 16K kernels - defaults to false
  # If BOOTS_16K is set, enable 64BIT_ONLY as well
-@@ -18,7 +18,7 @@ endif
+@@ -17,8 +17,9 @@ else
+ endif
  $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
  $(call inherit-product, device/linaro/dragonboard/shared/graphics/drm_hwcomposer/device.mk)
- $(call inherit-product, device/linaro/dragonboard/shared/graphics/mesa/device.mk)
+-$(call inherit-product, device/linaro/dragonboard/shared/graphics/mesa/device.mk)
 -$(call inherit-product, device/linaro/dragonboard/shared/graphics/minigbm_msm/device.mk)
++$(call inherit-product, device/linaro/dragonboard/shared/graphics/swangle/device.mk)
++#$(call inherit-product, device/linaro/dragonboard/shared/graphics/mesa/device.mk)
 +#$(call inherit-product, device/linaro/dragonboard/shared/graphics/minigbm_msm/device.mk)
  $(call inherit-product, device/linaro/dragonboard/db845c/device.mk)
  
@@ -94,6 +100,43 @@ index b1517c1..f7d2af1 100644
    TARGET_2ND_CPU_ABI := armeabi-v7a
    TARGET_2ND_CPU_ABI2 := armeabi
  endif
+diff --git a/sepolicy/file_contexts b/sepolicy/file_contexts
+index 6842dd8..7024726 100644
+--- a/sepolicy/file_contexts
++++ b/sepolicy/file_contexts
+@@ -9,7 +9,7 @@
+ 
+ /dev/dri				u:object_r:dri_device:s0
+ /dev/dri/card0				u:object_r:graphics_device:s0
+-/dev/dri/renderD128			u:object_r:gpu_device:s0
++/dev/dri/renderD128			u:object_r:graphics_device:s0
+ /dev/qcom_rmtfs_mem1			u:object_r:rmtfs_device:s0
+ /dev/ttyMSM0				u:object_r:console_device:s0
+ 
+@@ -72,3 +72,10 @@
+ /vendor/lib(64)?/libgbm_mesa\.so							u:object_r:same_process_hal_file:s0
+ /vendor/lib(64)?/libglapi\.so								u:object_r:same_process_hal_file:s0
+ /vendor/lib(64)?/libqrtr\.so								u:object_r:same_process_hal_file:s0
++
++/vendor/lib(64)?/egl/libGLESv1_CM_mesa\.so     u:object_r:same_process_hal_file:s0
++/vendor/lib(64)?/egl/libGLESv2_mesa\.so        u:object_r:same_process_hal_file:s0
++/vendor/lib(64)?/egl/libEGL_mesa\.so           u:object_r:same_process_hal_file:s0
++/vendor/lib64/hw/gralloc\.minigbm\.so          u:object_r:same_process_hal_file:s0
++/sys/devices/platform/passthrough(/.*)?/uevent u:object_r:sysfs_gpu:s0
++
+diff --git a/sepolicy/surfaceflinger.te b/sepolicy/surfaceflinger.te
+index 9bffa3f..05ca3ce 100644
+--- a/sepolicy/surfaceflinger.te
++++ b/sepolicy/surfaceflinger.te
+@@ -1,2 +1,8 @@
+ gpu_access(surfaceflinger)
+ allow surfaceflinger vendor_file:dir read;
++#allow surfaceflinger vendor_file:file { getattr open map execute };
++
++#allow surfaceflinger sysfs:dir r_dir_perms;
++#allow surfaceflinger sysfs:file { read open getattr };
++allow surfaceflinger sysfs_gpu:file { read open getattr };
++
 diff --git a/shared/graphics/mesa/BoardConfig.mk b/shared/graphics/mesa/BoardConfig.mk
 index c6e156d..ca05d51 100644
 --- a/shared/graphics/mesa/BoardConfig.mk
@@ -110,24 +153,26 @@ index c6e156d..ca05d51 100644
  BOARD_USE_CUSTOMIZED_MESA := true
  endif
 diff --git a/shared/graphics/mesa/device.mk b/shared/graphics/mesa/device.mk
-index a083424..0cfbd97 100644
+index a083424..4b9173e 100644
 --- a/shared/graphics/mesa/device.mk
 +++ b/shared/graphics/mesa/device.mk
-@@ -21,9 +21,11 @@ PRODUCT_PACKAGES := \
+@@ -21,9 +21,13 @@ PRODUCT_PACKAGES := \
      libGLESv1_CM_mesa \
      libGLESv2_mesa \
      libgallium_dri \
 -    libglapi
 +    libglapi \
 +    virtio_gpu.default \
-+    gralloc.minigbm
++    gralloc.minigbm \
++    android.hardware.graphics.allocator-service.minigbm \
++    android.hardware.graphics.mapper@4.0-impl.minigbm
  
 -TARGET_BUILD_MESA ?= false
 +TARGET_BUILD_MESA ?= true
  ifeq ($(TARGET_BUILD_MESA), true)
     PRODUCT_SOONG_NAMESPACES += \
         external/mesa3d
-@@ -33,7 +35,8 @@ PRODUCT_PROPERTY_OVERRIDES := \
+@@ -33,7 +37,8 @@ PRODUCT_PROPERTY_OVERRIDES := \
      ro.sf.lcd_density=160 \
      ro.hardware.egl=mesa \
      ro.opengles.version=196608 \
@@ -137,7 +182,7 @@ index a083424..0cfbd97 100644
  
  PRODUCT_COPY_FILES += \
      frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml \
-@@ -41,7 +44,7 @@ PRODUCT_COPY_FILES += \
+@@ -41,7 +46,7 @@ PRODUCT_COPY_FILES += \
  
  # Vulkan
  PRODUCT_PACKAGES += \
@@ -146,7 +191,7 @@ index a083424..0cfbd97 100644
  
  PRODUCT_COPY_FILES += \
      frameworks/native/data/etc/android.hardware.vulkan.compute-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.compute.xml \
-@@ -50,8 +53,14 @@ PRODUCT_COPY_FILES += \
+@@ -50,8 +55,14 @@ PRODUCT_COPY_FILES += \
      frameworks/native/data/etc/android.software.vulkan.deqp.level-2021-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.vulkan.deqp.level.xml
  
  PRODUCT_VENDOR_PROPERTIES += \
@@ -164,6 +209,22 @@ index a083424..0cfbd97 100644
 +			     ro.boot.qemu=1
 +
 +TARGET_USES_VULKAN := false
+diff --git a/shared/graphics/swangle/device.mk b/shared/graphics/swangle/device.mk
+index 6f85a0e..81c4fa5 100644
+--- a/shared/graphics/swangle/device.mk
++++ b/shared/graphics/swangle/device.mk
+@@ -21,7 +21,10 @@ PRODUCT_REQUIRES_INSECURE_EXECMEM_FOR_SWIFTSHADER := true
+ PRODUCT_PACKAGES := \
+     libEGL_angle \
+     libGLESv1_CM_angle \
+-    libGLESv2_angle
++    libGLESv2_angle \
++    gralloc.minigbm \
++    android.hardware.graphics.allocator-service.minigbm \
++    android.hardware.graphics.mapper@4.0-impl.minigbm
+ 
+ PRODUCT_VENDOR_PROPERTIES := \
+     ro.hardware.egl=angle \
 -- 
 2.34.1
 
