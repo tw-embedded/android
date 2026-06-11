@@ -2,9 +2,9 @@
 
 #set -e
 
-SRC_PATH=~/baize-board/android
+SRC_PATH="$(cd "$(dirname "$0")" && pwd)"
 
-cp ~/aosp/out/target/product/db845c/*.img .
+cd $SRC_PATH/../_cache/_aosp/out/target/product/db845c/
 mv vendor.img vendor.img.ori
 
 dd if=/dev/zero of=vendor.img bs=1M count=512
@@ -34,11 +34,4 @@ cd ..
 
 sudo umount ori
 sudo umount dst
-
-cp product.img ~/temp/
-cp system.img ~/temp/
-cp system_ext.img ~/temp/
-cp userdata.img ~/temp/
-cp vbmeta.img ~/temp/
-cp vendor.img ~/temp/
 
