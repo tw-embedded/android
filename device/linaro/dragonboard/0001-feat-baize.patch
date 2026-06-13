@@ -1,4 +1,4 @@
-From d6a88e33df641edc1c92a49ce3499c052cb23b1f Mon Sep 17 00:00:00 2001
+From 10f43b3fa417446c65b695596bac92a3a1ce7089 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Sun, 26 Apr 2026 02:06:16 +0000
 Subject: [PATCH] feat: baize
@@ -7,14 +7,14 @@ Change-Id: I2bc370d895cb8d86e784189f0569abf7584cb3b9
 Signed-off-by: Your Name <you@example.com>
 ---
  BoardConfigCommon.mk                | 12 ++++++------
- db845c.mk                           |  7 ++++---
+ db845c.mk                           |  9 ++++++---
  db845c/BoardConfig.mk               |  8 ++++----
  sepolicy/file_contexts              |  9 ++++++++-
  sepolicy/surfaceflinger.te          |  6 ++++++
  shared/graphics/mesa/BoardConfig.mk |  4 ++--
  shared/graphics/mesa/device.mk      | 25 ++++++++++++++++++-------
  shared/graphics/swangle/device.mk   |  5 ++++-
- 8 files changed, 52 insertions(+), 24 deletions(-)
+ 8 files changed, 54 insertions(+), 24 deletions(-)
 
 diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
 index 2683711..8afbc76 100644
@@ -54,7 +54,7 @@ index 2683711..8afbc76 100644
  # BT
  BOARD_HAVE_BLUETOOTH := true
 diff --git a/db845c.mk b/db845c.mk
-index 6a82598..8573ac0 100644
+index 6a82598..14c227c 100644
 --- a/db845c.mk
 +++ b/db845c.mk
 @@ -1,5 +1,5 @@
@@ -64,7 +64,16 @@ index 6a82598..8573ac0 100644
  
  # Target can boot 16K kernels - defaults to false
  # If BOOTS_16K is set, enable 64BIT_ONLY as well
-@@ -17,8 +17,9 @@ else
+@@ -9,6 +9,8 @@ ifeq ($(TARGET_BOOTS_16K), true)
+   TARGET_64BIT_ONLY := true
+ endif
+ 
++PRODUCT_COMPRESSED_APEX := false
++
+ $(call inherit-product, device/linaro/dragonboard/full.mk)
+ ifeq ($(TARGET_64BIT_ONLY), true)
+   $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+@@ -17,8 +19,9 @@ else
  endif
  $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
  $(call inherit-product, device/linaro/dragonboard/shared/graphics/drm_hwcomposer/device.mk)
