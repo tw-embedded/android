@@ -1,4 +1,4 @@
-From 10f43b3fa417446c65b695596bac92a3a1ce7089 Mon Sep 17 00:00:00 2001
+From b11fb38a33d10c23d9532ef611587fdc97b09c40 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Sun, 26 Apr 2026 02:06:16 +0000
 Subject: [PATCH] feat: baize
@@ -7,14 +7,17 @@ Change-Id: I2bc370d895cb8d86e784189f0569abf7584cb3b9
 Signed-off-by: Your Name <you@example.com>
 ---
  BoardConfigCommon.mk                | 12 ++++++------
- db845c.mk                           |  9 ++++++---
+ db845c.mk                           | 10 +++++++---
  db845c/BoardConfig.mk               |  8 ++++----
+ db845c/device.mk                    |  3 ++-
+ device-common.mk                    |  3 ++-
+ init.common.rc                      |  6 ++++++
  sepolicy/file_contexts              |  9 ++++++++-
  sepolicy/surfaceflinger.te          |  6 ++++++
  shared/graphics/mesa/BoardConfig.mk |  4 ++--
  shared/graphics/mesa/device.mk      | 25 ++++++++++++++++++-------
  shared/graphics/swangle/device.mk   |  5 ++++-
- 8 files changed, 54 insertions(+), 24 deletions(-)
+ 11 files changed, 65 insertions(+), 26 deletions(-)
 
 diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
 index 2683711..8afbc76 100644
@@ -54,7 +57,7 @@ index 2683711..8afbc76 100644
  # BT
  BOARD_HAVE_BLUETOOTH := true
 diff --git a/db845c.mk b/db845c.mk
-index 6a82598..14c227c 100644
+index 6a82598..8214a52 100644
 --- a/db845c.mk
 +++ b/db845c.mk
 @@ -1,5 +1,5 @@
@@ -73,12 +76,13 @@ index 6a82598..14c227c 100644
  $(call inherit-product, device/linaro/dragonboard/full.mk)
  ifeq ($(TARGET_64BIT_ONLY), true)
    $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
-@@ -17,8 +19,9 @@ else
+@@ -17,8 +19,10 @@ else
  endif
  $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
  $(call inherit-product, device/linaro/dragonboard/shared/graphics/drm_hwcomposer/device.mk)
 -$(call inherit-product, device/linaro/dragonboard/shared/graphics/mesa/device.mk)
 -$(call inherit-product, device/linaro/dragonboard/shared/graphics/minigbm_msm/device.mk)
++# izaac: use swangle but mesa because android 15 need gpu cap id set 6, not 1 & 2
 +$(call inherit-product, device/linaro/dragonboard/shared/graphics/swangle/device.mk)
 +#$(call inherit-product, device/linaro/dragonboard/shared/graphics/mesa/device.mk)
 +#$(call inherit-product, device/linaro/dragonboard/shared/graphics/minigbm_msm/device.mk)
@@ -109,6 +113,50 @@ index b1517c1..f7d2af1 100644
    TARGET_2ND_CPU_ABI := armeabi-v7a
    TARGET_2ND_CPU_ABI2 := armeabi
  endif
+diff --git a/db845c/device.mk b/db845c/device.mk
+index bfc728c..eee6d57 100644
+--- a/db845c/device.mk
++++ b/db845c/device.mk
+@@ -30,7 +30,8 @@ PRODUCT_COPY_FILES += \
+     device/linaro/dragonboard/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc
+ 
+ # Build generic Audio HAL
+-PRODUCT_PACKAGES += audio.primary.db845c
++#PRODUCT_PACKAGES += audio.primary.db845c
++# izaac: rm audio for zegote reboot
+ 
+ # BootControl HAL
+ PRODUCT_PACKAGES += \
+diff --git a/device-common.mk b/device-common.mk
+index 64f5124..3c3e7ac 100644
+--- a/device-common.mk
++++ b/device-common.mk
+@@ -96,9 +96,10 @@ PRODUCT_VENDOR_PROPERTIES += \
+ PRODUCT_COPY_FILES += \
+     $(TARGET_KERNEL_DIR)/Image.gz:kernel \
+     device/linaro/dragonboard/init.common.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.$(TARGET_HARDWARE).rc \
+-    device/linaro/dragonboard/init.common.usb.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.$(TARGET_HARDWARE).usb.rc \
+     frameworks/base/data/keyboards/Generic.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/$(TARGET_HARDWARE).kl
+ 
++#PRODUCT_COPY_FILES += device/linaro/dragonboard/init.common.usb.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.$(TARGET_HARDWARE).usb.rc
++
+ # Workaround for the drop of OMX service
+ PRODUCT_VENDOR_PROPERTIES += \
+     debug.stagefright.c2inputsurface=-1
+diff --git a/init.common.rc b/init.common.rc
+index 42a582f..7e984f0 100644
+--- a/init.common.rc
++++ b/init.common.rc
+@@ -86,3 +86,9 @@ service suspend_blocker /vendor/bin/suspend_blocker
+     class early_hal # Start together with system_suspend HAL
+     group system
+     user root
++
++# added by izaac
++service audioserver /system/bin/audioserver
++    override
++    disabled
++
 diff --git a/sepolicy/file_contexts b/sepolicy/file_contexts
 index 6842dd8..7024726 100644
 --- a/sepolicy/file_contexts
