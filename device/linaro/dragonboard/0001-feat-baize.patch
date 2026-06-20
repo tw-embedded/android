@@ -1,4 +1,4 @@
-From b11fb38a33d10c23d9532ef611587fdc97b09c40 Mon Sep 17 00:00:00 2001
+From 1a9861caaea0413edd43b480aa2b78754cec96ba Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Sun, 26 Apr 2026 02:06:16 +0000
 Subject: [PATCH] feat: baize
@@ -9,15 +9,16 @@ Signed-off-by: Your Name <you@example.com>
  BoardConfigCommon.mk                | 12 ++++++------
  db845c.mk                           | 10 +++++++---
  db845c/BoardConfig.mk               |  8 ++++----
- db845c/device.mk                    |  3 ++-
- device-common.mk                    |  3 ++-
+ db845c/device.mk                    |  5 +++--
+ device-common.mk                    |  7 ++++---
  init.common.rc                      |  6 ++++++
  sepolicy/file_contexts              |  9 ++++++++-
  sepolicy/surfaceflinger.te          |  6 ++++++
  shared/graphics/mesa/BoardConfig.mk |  4 ++--
  shared/graphics/mesa/device.mk      | 25 ++++++++++++++++++-------
  shared/graphics/swangle/device.mk   |  5 ++++-
- 11 files changed, 65 insertions(+), 26 deletions(-)
+ shared/utils/dlkm_loader/device.mk  |  2 +-
+ 12 files changed, 69 insertions(+), 30 deletions(-)
 
 diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
 index 2683711..8afbc76 100644
@@ -114,10 +115,10 @@ index b1517c1..f7d2af1 100644
    TARGET_2ND_CPU_ABI2 := armeabi
  endif
 diff --git a/db845c/device.mk b/db845c/device.mk
-index bfc728c..eee6d57 100644
+index bfc728c..4e56f8a 100644
 --- a/db845c/device.mk
 +++ b/db845c/device.mk
-@@ -30,7 +30,8 @@ PRODUCT_COPY_FILES += \
+@@ -30,10 +30,11 @@ PRODUCT_COPY_FILES += \
      device/linaro/dragonboard/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc
  
  # Build generic Audio HAL
@@ -126,11 +127,26 @@ index bfc728c..eee6d57 100644
 +# izaac: rm audio for zegote reboot
  
  # BootControl HAL
- PRODUCT_PACKAGES += \
+-PRODUCT_PACKAGES += \
++#PRODUCT_PACKAGES += \
+     android.hardware.boot@1.2-impl \
+     android.hardware.boot@1.2-impl.recovery \
+     android.hardware.boot@1.2-service
 diff --git a/device-common.mk b/device-common.mk
-index 64f5124..3c3e7ac 100644
+index 64f5124..85fb32a 100644
 --- a/device-common.mk
 +++ b/device-common.mk
+@@ -67,8 +67,8 @@ PRODUCT_USE_DYNAMIC_PARTITIONS := true
+ PRODUCT_USE_DYNAMIC_PARTITION_SIZE := true
+ 
+ # Enable Virtual A/B
+-AB_OTA_UPDATER := true
+-AB_OTA_PARTITIONS += \
++AB_OTA_UPDATER := false
++#AB_OTA_PARTITIONS += \
+     product \
+     system \
+     system_ext \
 @@ -96,9 +96,10 @@ PRODUCT_VENDOR_PROPERTIES += \
  PRODUCT_COPY_FILES += \
      $(TARGET_KERNEL_DIR)/Image.gz:kernel \
@@ -282,6 +298,16 @@ index 6f85a0e..81c4fa5 100644
  
  PRODUCT_VENDOR_PROPERTIES := \
      ro.hardware.egl=angle \
+diff --git a/shared/utils/dlkm_loader/device.mk b/shared/utils/dlkm_loader/device.mk
+index d4df84c..5b5c06c 100644
+--- a/shared/utils/dlkm_loader/device.mk
++++ b/shared/utils/dlkm_loader/device.mk
+@@ -1,4 +1,4 @@
+-AB_OTA_PARTITIONS += system_dlkm vendor_dlkm
++#AB_OTA_PARTITIONS += system_dlkm vendor_dlkm
+ PRODUCT_PACKAGES += dlkm_loader
+ 
+ # List of modules that should not load automatically
 -- 
 2.34.1
 
