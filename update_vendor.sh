@@ -17,6 +17,7 @@ sudo rsync -aXA ./ori/ ./dst/
 cd dst
 sudo cp $SRC_PATH/img_update/etc/fstab.baize etc/
 sudo cp $SRC_PATH/img_update/etc/init/init.baize.rc etc/init/
+sudo rm $SRC_PATH/img_update/etc/init/android.hardware.boot@1.2-service.rc
 
 sudo cp -r $SRC_PATH/vendor/linaro/shared/20240817/mesa_prebuilt/lib64/* lib64/
 
