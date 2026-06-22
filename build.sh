@@ -93,10 +93,9 @@ function swapfile() {
 }
 
 function patch_aosp() {
-	pushd .
-        cd ./device/linaro/dragonboard
-        git am $OUT_DIR/../android/device/linaro/dragonboard/0001-feat-baize.patch
-	popd
+        git -C ./device/linaro/dragonboard am $OUT_DIR/../android/aosp/device/linaro/dragonboard/0001-feat-baize.patch
+	git -C ./frameworks/base am $OUT_DIR/../android/aosp/frameworks/base/0001-feat-always-on.patch
+	git -C ./packages/apps/Provision am $OUT_DIR/../android/aosp/packages/apps/Provision/0001-feat-change-UI.patch
 }
 
 function build_aosp() {

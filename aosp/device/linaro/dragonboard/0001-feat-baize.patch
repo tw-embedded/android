@@ -1,4 +1,4 @@
-From 72d5079755b36a1cb4ca76ded22c37a1914a3f09 Mon Sep 17 00:00:00 2001
+From d24ace81cabc0dc809ae16eddac3dd3869028e08 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Sun, 26 Apr 2026 02:06:16 +0000
 Subject: [PATCH] feat: baize
@@ -7,7 +7,7 @@ Change-Id: I2bc370d895cb8d86e784189f0569abf7584cb3b9
 Signed-off-by: Your Name <you@example.com>
 ---
  BoardConfigCommon.mk                | 12 ++++++------
- db845c.mk                           | 11 ++++++++---
+ db845c.mk                           | 13 ++++++++++---
  db845c/BoardConfig.mk               |  8 ++++----
  db845c/device.mk                    |  5 +++--
  device-common.mk                    |  7 ++++---
@@ -19,7 +19,7 @@ Signed-off-by: Your Name <you@example.com>
  shared/graphics/mesa/device.mk      | 25 ++++++++++++++++++-------
  shared/graphics/swangle/device.mk   |  5 ++++-
  shared/utils/dlkm_loader/device.mk  |  2 +-
- 13 files changed, 71 insertions(+), 30 deletions(-)
+ 13 files changed, 73 insertions(+), 30 deletions(-)
 
 diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
 index 2683711..8afbc76 100644
@@ -59,7 +59,7 @@ index 2683711..8afbc76 100644
  # BT
  BOARD_HAVE_BLUETOOTH := true
 diff --git a/db845c.mk b/db845c.mk
-index 6a82598..c5ec4ea 100644
+index 6a82598..2f337bf 100644
 --- a/db845c.mk
 +++ b/db845c.mk
 @@ -1,5 +1,5 @@
@@ -69,17 +69,19 @@ index 6a82598..c5ec4ea 100644
  
  # Target can boot 16K kernels - defaults to false
  # If BOOTS_16K is set, enable 64BIT_ONLY as well
-@@ -9,6 +9,9 @@ ifeq ($(TARGET_BOOTS_16K), true)
+@@ -9,6 +9,11 @@ ifeq ($(TARGET_BOOTS_16K), true)
    TARGET_64BIT_ONLY := true
  endif
  
 +PRODUCT_COMPRESSED_APEX := false
-+PRODUCT_VENDOR_PROPERTIES += pm.dexopt.first-boot=skip
++#PRODUCT_VENDOR_PROPERTIES += pm.dexopt.first-boot=skip
++PRODUCT_VENDOR_PROPERTIES += persist.sys.device_provisioned=1
++PRODUCT_VENDOR_PROPERTIES += ro.setupwizard.mode=DISABLED
 +
  $(call inherit-product, device/linaro/dragonboard/full.mk)
  ifeq ($(TARGET_64BIT_ONLY), true)
    $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
-@@ -17,8 +20,10 @@ else
+@@ -17,8 +22,10 @@ else
  endif
  $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
  $(call inherit-product, device/linaro/dragonboard/shared/graphics/drm_hwcomposer/device.mk)

@@ -1,0 +1,33 @@
+From 72a5ca72764735188b5acf3229f47f4d42dd9cd1 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Wed, 24 Jun 2026 06:52:03 +0000
+Subject: [PATCH] feat: change UI
+
+Change-Id: I56d8e0007ad48d2146f148d3066b4b3985d3029c
+Signed-off-by: Your Name <you@example.com>
+---
+ AndroidManifest.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index a589b5a..0f864d4 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -35,12 +35,12 @@
+              android:excludeFromRecents="true"
+              android:directBootAware="true"
+              android:exported="true">
+-            <intent-filter android:priority="1">
++	    <!-- <intent-filter android:priority="1">
+                 <action android:name="android.intent.action.MAIN"/>
+                 <category android:name="android.intent.category.HOME"/>
+                 <category android:name="android.intent.category.DEFAULT"/>
+                 <category android:name="android.intent.category.SETUP_WIZARD"/>
+-            </intent-filter>
++	    </intent-filter> -->
+         </activity>
+     </application>
+ </manifest>
+-- 
+2.34.1
+
