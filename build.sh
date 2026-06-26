@@ -105,6 +105,8 @@ function build_aosp() {
 		repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r22 --depth=1
 		repo sync -c --no-tags --no-clone-bundle -j$(nproc)
 		patch_aosp
+		cp $OUT_DIR/../android/aosp/frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.png frameworks/base/core/res/res/drawable-nodpi/
+		./device/linaro/dragonboard/fetch-vendor-package.sh
 	fi
 	source build/envsetup.sh
 	#lunch aosp_cf_arm64_phone-trunk_staging-userdebug

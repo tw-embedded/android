@@ -1,25 +1,26 @@
-From d24ace81cabc0dc809ae16eddac3dd3869028e08 Mon Sep 17 00:00:00 2001
+From 9c89816d1521c415d62b06d3670326438b963766 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
-Date: Sun, 26 Apr 2026 02:06:16 +0000
+Date: Fri, 26 Jun 2026 03:28:11 +0000
 Subject: [PATCH] feat: baize
 
-Change-Id: I2bc370d895cb8d86e784189f0569abf7584cb3b9
+Change-Id: Ie87791adcac3c57874ca4a59f92eeb0d7303209f
 Signed-off-by: Your Name <you@example.com>
 ---
- BoardConfigCommon.mk                | 12 ++++++------
- db845c.mk                           | 13 ++++++++++---
- db845c/BoardConfig.mk               |  8 ++++----
- db845c/device.mk                    |  5 +++--
- device-common.mk                    |  7 ++++---
- init.common.rc                      |  6 ++++++
- product.prop                        |  1 +
- sepolicy/file_contexts              |  9 ++++++++-
- sepolicy/surfaceflinger.te          |  6 ++++++
- shared/graphics/mesa/BoardConfig.mk |  4 ++--
- shared/graphics/mesa/device.mk      | 25 ++++++++++++++++++-------
- shared/graphics/swangle/device.mk   |  5 ++++-
- shared/utils/dlkm_loader/device.mk  |  2 +-
- 13 files changed, 73 insertions(+), 30 deletions(-)
+ BoardConfigCommon.mk                          | 12 ++++-----
+ db845c.mk                                     | 13 +++++++---
+ db845c/BoardConfig.mk                         |  8 +++---
+ db845c/device.mk                              |  5 ++--
+ device-common.mk                              |  7 +++---
+ init.common.rc                                |  6 +++++
+ .../base/core/res/res/values/config.xml       |  1 -
+ product.prop                                  |  1 +
+ sepolicy/file_contexts                        |  9 ++++++-
+ sepolicy/surfaceflinger.te                    |  6 +++++
+ shared/graphics/mesa/BoardConfig.mk           |  4 +--
+ shared/graphics/mesa/device.mk                | 25 +++++++++++++------
+ shared/graphics/swangle/device.mk             |  5 +++-
+ shared/utils/dlkm_loader/device.mk            |  2 +-
+ 14 files changed, 73 insertions(+), 31 deletions(-)
 
 diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
 index 2683711..8afbc76 100644
@@ -177,6 +178,16 @@ index 42a582f..7e984f0 100644
 +    override
 +    disabled
 +
+diff --git a/overlay/frameworks/base/core/res/res/values/config.xml b/overlay/frameworks/base/core/res/res/values/config.xml
+index 1cbe785..54c3416 100644
+--- a/overlay/frameworks/base/core/res/res/values/config.xml
++++ b/overlay/frameworks/base/core/res/res/values/config.xml
+@@ -77,5 +77,4 @@
+         <item>1</item>
+         <item>7</item>
+     </integer-array>
+-
+ </resources>
 diff --git a/product.prop b/product.prop
 index 19b8fd5..07338d6 100644
 --- a/product.prop
