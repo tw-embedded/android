@@ -1,0 +1,27 @@
+From 3db99880191d8b82e7ce74c72f174d7e862d8849 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Tue, 30 Jun 2026 06:13:52 +0000
+Subject: [PATCH] feat: reduce fps
+
+Change-Id: I848459dec6dec58488961d04a5e3fa2fb344ccd3
+Signed-off-by: Your Name <you@example.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 3d3905067b88..bcc681a270e8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -178,7 +178,7 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
+ 		drm_set_preferred_mode(connector, XRES_DEF, YRES_DEF);
+ 	} else {
+ 		DRM_DEBUG("add mode: %dx%d\n", width, height);
+-		mode = drm_cvt_mode(connector->dev, width, height, 60,
++		mode = drm_cvt_mode(connector->dev, width, height, 30,
+ 				    false, false, false);
+ 		if (!mode)
+ 			return count;
+-- 
+2.34.1
+

@@ -27,6 +27,7 @@ function build_kernel() {
 		cp $OUT_DIR/../android/15-6.6/baize.fragment common/arch/arm64/configs/
 		cd common/
 		git am $OUT_DIR/../android/15-6.6/0001-fix-android-ubsan-error-when-mount-virtio-blk-device.patch
+		git am $OUT_DIR/../android/15-6.6/0001-feat-reduce-fps.patch
 		cd ..
 	fi
 
